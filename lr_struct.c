@@ -16,40 +16,41 @@ struct Data {
 	float (*data)[2];
 };
 
-float grad_w(float w, float b, int size, float data[][2]) {
+float grad_w(struct Params *p, struct Data *d) {
 	// 2 / size ((w * x + b) - y) * x;  
 	float res = 0.0f;
-	for (int i = 0; i < size; i++) {
-		float x = data[i][0];
-		float y = data[i][1];
-		float y_hat = w * x + b;
+	for (int i = 0; i < d->size; i++) {
+		float x = d->data[i][0];
+		float y = d->data[i][1];
+		float y_hat = p->w * x + p->b;
 		res += (y_hat - y) * x;
 	}
-	return 2.0f * res / size;
+	return 2.0f * res / d->size;
 }
 
-float grad_b(float w, float b, int size, float data[][2]) {
-	// 2 / size ((w * x + b) - y);  
+float grad_b(struct Params *p, struct Data *d) {
+	// 2 / size ((w * x + b) - y) * x;  
 	float res = 0.0f;
-	for (int i = 0; i < size; i++) {
-		float x = data[i][0];
-		float y = data[i][1];
-		float y_hat = w * x + b;
+	for (int i = 0; i < d->size; i++) {
+		float x = d->data[i][0];
+		float y = d->data[i][1];
+		float y_hat = p->w * x + p->b;
 		res += (y_hat - y);
 	}
-	return 2.0f * res / size;
+	return 2.0f * res / d->size;
 }
 
-float loss(float w, float b, int size, float data[][2]) {
+
+float loss(struct Params *p, struct Data *d) {
 	float res = 0.0f;
-	for (int i = 0; i < size; i++) {
-		float x = data[i][0];
-		float y = data[i][1];
-		float y_hat = w * x + b;
+	for (int i = 0; i < d->size; i++) {
+		float x = d->data[i][0];
+		float y = d->data[i][1];
+		float y_hat = p->w * x + p->b;
 		float err = y_hat - y;
 		res += err * err;
 	}
-	return res / (float) size;
+	return res / (float) d->size;
 }
 int main() {
 	srand(time(NULL));
@@ -71,14 +72,14 @@ int main() {
 	}
 
 	for (int i = 0; i < d.iter; i++) {
-		float cost = loss(p.w, p.b, d.size, d.data);
-		float gw = grad_w(p.w, p.b, d.size, d.data);
-		float gb = grad_b(p.w, p.b, d.size, d.data);
+		float cost = loss(&p, &d);
+		float gw = grad_w(&p, &d);
+		float gb = grad_b(&p, &d);
 
 		p.w -= p.lr * gw;
 		p.b -= p.lr * gb;
 		printf("iteration: %d, loss: %.4f, w: %f, b: %f\n", 
-			i, loss(p.w, p.b, d.size, d.data), p.w, p.b);
+			i, loss(&p, &d), p.w, p.b);
 	}
 
 	return 0;
