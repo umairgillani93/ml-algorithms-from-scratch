@@ -29,7 +29,7 @@ float grad_w(struct Params *p, struct Data *d) {
 }
 
 float grad_b(struct Params *p, struct Data *d) {
-	// 2 / size ((w * x + b) - y) * x;  
+	// 2 / size ((w * x + b) - y);  
 	float res = 0.0f;
 	for (int i = 0; i < d->size; i++) {
 		float x = d->data[i][0];
@@ -52,6 +52,7 @@ float loss(struct Params *p, struct Data *d) {
 	}
 	return res / (float) d->size;
 }
+
 int main() {
 	srand(time(NULL));
 	struct Params p;
@@ -68,21 +69,27 @@ int main() {
 
 	for (int i = 0; i < d.size; i++) {
 		d.data[i][0] = i;
-		d.data[i][1] = i * 2 + 1;
+		d.data[i][1] = (float) i * 2 + rand() / RAND_MAX;
 	}
 
+	float cost = loss(&p, &d);
+
 	for (int i = 0; i < d.iter; i++) {
-		float cost = loss(&p, &d);
 		float gw = grad_w(&p, &d);
 		float gb = grad_b(&p, &d);
 
 		p.w -= p.lr * gw;
 		p.b -= p.lr * gb;
-		printf("iteration: %d, loss: %.4f, w: %f, b: %f\n", 
-			i, loss(&p, &d), p.w, p.b);
+		//printf("iteration: %d, loss: %.4f, w: %f, b: %f\n", 
+		//	i, loss(&p, &d), p.w, p.b);
 	}
 
+	int x;
+	printf("Enter X: \n");
+	scanf("%d", &x);
+	float ans = p.w * (float) x + p.b;
+	printf("result: %f\n", ans);
+	
 	return 0;
-
 }
 
