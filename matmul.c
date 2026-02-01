@@ -31,7 +31,7 @@ struct Matrix *matmul(struct Matrix *matrix1, struct Matrix *matrix2) {
 				// Remember 'k' is shared dimention for multplication of matrix1 and matrix2
 				sum += matrix1->data[i * matrix1->cols + k] * matrix2->data[k * matrix2->cols + j];
 			}
-			result -> data[i * matrix1 -> cols + j] = (float) sum;
+			result -> data[i * result-> cols + j] = (float) sum;
 		}
 	}
 	return result;
