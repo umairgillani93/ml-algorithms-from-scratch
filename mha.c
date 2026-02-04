@@ -14,6 +14,16 @@ struct Matrix {
 	float *data;
 };
 
+struct Tensor {
+	int rows;
+	int cols;
+	int size;
+	float *data;
+	int dim; // dimention / rank of a Tensor
+	char *dtype;
+	char *device;
+};
+
 //struct Matrix *transpose(struct Matrix *matrix) {
 //	struct Matrix *res = malloc(sizeof(struct Matrix));
 //	res->rows = matrix->cols;
@@ -76,6 +86,26 @@ void shape(struct Matrix *m) {
 	printf("(%d, %d)\n",  m->rows,  m->cols);
 }
 
+struct Matrix *self_attention(struct Matrix *Q, struct Matrix *K, struct Matrix *V, 
+	 														float dk, int num_heads) {
+
+	struct Matrix *qk = matmul(Q, K);
+	dk_square_root(qk, dk);
+	softmax(qk);
+	struct Matrix *result = matmul(V, qk);
+	return result;
+		
+}
+
+struct Matrix *multi_head_attention(struct Matrix *Q, struct Matrix *K, struct Matrix *V, 
+	                                 float dk, int num_heads) {
+	struct Matrix *mha = attention;
+	for (int i = 0; i < heads; i++) {
+		struct Matrix *att = self_attention(Q, K, V, dk, num_heads);
+		
+	}
+}
+
 int main() {
 	srand(time(NULL));
 	float e = 2.718;
@@ -109,23 +139,9 @@ int main() {
 		}
 	}
 
-	struct Matrix *qk = matmul(Q, K);
-	softmax(qk);
-
-	float num_heads = 8.0f;
+	int num_heads = 8;
 	float d_model = 768.0f;
-	float dk = d_model / num_heads;
-
-	dk_square_root(qk, dk);
-
-	for (int i = 0; i < qk->rows; i++) {
-		for (int j = 0; j < qk->cols; j++) {
-			printf("%f ", qk->data[i * qk->cols + j]);
-		}
-		printf("\n");
-	}
-	shape(qk);
-	printf("-----------------------\n");
+	float dk = d_model / (float) num_heads;
 
 	// declare the value matrix
 	struct Matrix *V = malloc(sizeof(struct Matrix));
@@ -142,7 +158,8 @@ int main() {
 		}
 	}
 
-	struct Matrix *result = matmul(V, qk);
+
+	struct Matrix *result = self_attention(Q, K, V, dk, num_heads);
 
 	for (int i = 0; i < result->rows; i++) {
 		for (int j = 0; j < result->cols; j++) {
@@ -153,3 +170,4 @@ int main() {
 	
 	return 0;
 }
+
