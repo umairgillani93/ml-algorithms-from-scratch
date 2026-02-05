@@ -86,6 +86,40 @@ void shape(struct Matrix *m) {
 	printf("(%d, %d)\n",  m->rows,  m->cols);
 }
 
+struct Matrix *multi_head_attention(struct Matrix **arr, int SIZE) {
+    int total_rows = 0;
+    for (int i = 0; i < SIZE; i++) {
+        total_rows += arr[i]->rows;
+    }
+
+    struct Matrix *res = malloc(sizeof(struct Matrix));
+    struct Matrix *first = arr[0];
+    int curr_row = first->rows;
+
+    res->rows = total_rows;
+    res->cols = first->cols;
+    res->size = res->rows * first->cols;
+    res->data = malloc(res->size * sizeof(float));
+
+    for (int i = 0; i < first->rows; i++) {
+        for (int j = 0; j < first->cols; j++) {
+            res->data[i * res->cols + j] = first->data[i * first->cols + j];
+        }
+    }
+
+    for (int k = 1; k < SIZE; k++) {
+        struct Matrix *b = arr[k];
+        for (int i = 0; i < b->rows; i++) {
+            for (int j = 0; j < b->cols; j++) {
+                res->data[(curr_row + i) * res->cols + j] = b->data[i * b->cols + j];
+            }
+        }
+        curr_row += b->rows; 
+    }
+
+    return res;
+}
+
 struct Matrix *self_attention(struct Matrix *Q, struct Matrix *K, struct Matrix *V, 
 	 														float dk, int num_heads) {
 
@@ -97,14 +131,6 @@ struct Matrix *self_attention(struct Matrix *Q, struct Matrix *K, struct Matrix 
 		
 }
 
-struct Matrix *multi_head_attention(struct Matrix *Q, struct Matrix *K, struct Matrix *V, 
-	                                 float dk, int num_heads) {
-	struct Matrix *mha = attention;
-	for (int i = 0; i < heads; i++) {
-		struct Matrix *att = self_attention(Q, K, V, dk, num_heads);
-		
-	}
-}
 
 int main() {
 	srand(time(NULL));
