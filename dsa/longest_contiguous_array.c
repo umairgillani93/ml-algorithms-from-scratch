@@ -1,6 +1,6 @@
 #include <stdio.h>
 
-#define max(a, b) (((a) > (b)) ? (a) : (b))
+#define MAX(a, b) (((a) > (b)) ? (a) : (b))
 
 int main() {
 	char A[] = "aaabbcccddddddddddddddddddddd555555555";
