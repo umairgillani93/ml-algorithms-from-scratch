@@ -65,6 +65,7 @@ void softmax(struct Matrix *m) {
 	for (int i = 0; i < m->rows; i++) {
 		float res = 0.0f;
 		for (int j = 0; j < m->cols; j++) {
+			m->data[i * m->cols + j] = expf(m->data[i * m->cols +j]);
 			res += m->data[i * m->cols +j];
 		}
 		for (int k = 0; k < m->cols; k++) {
