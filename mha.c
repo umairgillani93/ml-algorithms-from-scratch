@@ -87,26 +87,30 @@ void shape(struct Matrix *m) {
 	printf("(%d, %d)\n",  m->rows,  m->cols);
 }
 
+void display(struct Matrix *m) {
+    for (int i = 0; i < m->rows; i++) {
+        for (int j = 0; j < m->cols; j++) {
+            printf("%f ", m->data[i * m->cols + j]);
+        }
+				printf("\n");
+    }
+}
+
 struct Matrix *multi_head_attention(struct Matrix **arr, int SIZE) {
     int total_rows = 0;
     for (int i = 0; i < SIZE; i++) {
         total_rows += arr[i]->rows;
     }
+		//prinft("total cols: %d\n", total_cols);
 
     struct Matrix *res = malloc(sizeof(struct Matrix));
     struct Matrix *first = arr[0];
-    int curr_row = first->rows;
+		int curr_row = first->rows;
 
     res->rows = total_rows;
     res->cols = first->cols;
     res->size = res->rows * first->cols;
     res->data = malloc(res->size * sizeof(float));
-
-    for (int i = 0; i < first->rows; i++) {
-        for (int j = 0; j < first->cols; j++) {
-            res->data[i * res->cols + j] = first->data[i * first->cols + j];
-        }
-    }
 
     for (int k = 1; k < SIZE; k++) {
         struct Matrix *b = arr[k];
@@ -117,7 +121,6 @@ struct Matrix *multi_head_attention(struct Matrix **arr, int SIZE) {
         }
         curr_row += b->rows; 
     }
-
     return res;
 }
 
@@ -184,17 +187,35 @@ int main() {
 			V->data[i * V->cols + j] = RAND_FLOAT;
 		}
 	}
+	//TODO: Implement the correct logic for 
+	//multihead attention  and attentions heads glueing
+	//along the columns now rows like didin t.c test file.
 
+	struct Matrix *res = multi_head_attention(**arr, 3);
+	display(res);
 
-	struct Matrix *result = self_attention(Q, K, V, dk, num_heads);
-
-	for (int i = 0; i < result->rows; i++) {
-		for (int j = 0; j < result->cols; j++) {
-			printf("%f ", result->data[i * result->cols + j]);
-		}
-		printf("\n");
-	}
 	
 	return 0;
 }
+
+//struct Matrix *concatenate_heads(struct Matrix **heads, int num_heads) {
+//    int seq_len = heads[0]->rows;
+//    int dk = heads[0]->cols;
+//    int d_model = dk * num_heads;
+//
+//    struct Matrix *res = malloc(sizeof(struct Matrix));
+//    res->rows = seq_len;
+//    res->cols = d_model;
+//    res->data = malloc(seq_len * d_model * sizeof(float));
+//
+//    for (int i = 0; i < seq_len; i++) { // For each word
+//        for (int h = 0; h < num_heads; h++) { // For each head
+//            for (int j = 0; j < dk; j++) { // For each feature in that head
+//                // This logic "glues" the heads side-by-side
+//                res->data[i * d_model + (h * dk + j)] = heads[h]->data[i * dk + j];
+//            }
+//        }
+//    }
+//    return res;
+//}
 

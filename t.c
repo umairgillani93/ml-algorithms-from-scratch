@@ -9,87 +9,67 @@ struct Matrix {
     int rows;
     int cols;
     int size;
-    float *data;
+    int *data;
 };
 
-
-struct Matrix *concat(struct Matrix **arr, int SIZE) {
-    int total_rows = 0;
-    for (int i = 0; i < SIZE; i++) {
-        total_rows += arr[i]->rows;
-    }
-
-    struct Matrix *res = malloc(sizeof(struct Matrix));
-    struct Matrix *first = arr[0];
-    int curr_row = first->rows;
-
-    res->rows = total_rows;
-    res->cols = first->cols;
-    res->size = res->rows * first->cols;
-    res->data = malloc(res->size * sizeof(float));
-
-    for (int i = 0; i < first->rows; i++) {
-        for (int j = 0; j < first->cols; j++) {
-            res->data[i * res->cols + j] = first->data[i * first->cols + j];
+void display(struct Matrix *m) {
+    for (int i = 0; i < m->rows; i++) {
+        for (int j = 0; j < m->cols; j++) {
+            printf("%d ", m->data[i * m->cols + j]);
         }
+				printf("\n");
     }
-
-    for (int k = 1; k < SIZE; k++) {
-        struct Matrix *b = arr[k];
-        for (int i = 0; i < b->rows; i++) {
-            for (int j = 0; j < b->cols; j++) {
-                res->data[(curr_row + i) * res->cols + j] = b->data[i * b->cols + j];
-            }
-        }
-        curr_row += b->rows; 
-    }
-
-    return res;
 }
 
 int main() {
-    srand(time(NULL));
-    float e = 2.718;
+	struct Matrix *first = malloc(sizeof(struct Matrix));
+	first->rows = 4;
+	first->cols = 4;
+	first->size = first->rows * first->cols;
+	first->data = malloc(first->size * sizeof(int));
 
-    int rows = 2;
-    int cols = 2;
+	for (int i = 0; i < first->rows; i++) {
+		for (int j = 0; j < first->cols; j++) {
+			first->data[i * first->cols + j] = i + j;
+		}
+	}
 
-    struct Matrix *Q= malloc(sizeof(struct Matrix));
-    struct Matrix *K= malloc(sizeof(struct Matrix));
+	struct Matrix *second = malloc(sizeof(struct Matrix));
+	second->rows = 4;
+	second->cols = 4;
+	second->size = second->rows * second->cols;
+	second->data = malloc(second->size * sizeof(int));
 
-    Q->rows = rows;
-    Q->cols = cols;
-    Q->data = malloc(rows * cols * sizeof(float));
+	for (int i = 0; i < second->rows; i++) {
+		for (int j = 0; j < second->cols; j++) {
+			second->data[i * second->cols + j] = i + j;
+		}
+	}
 
-    K->rows = rows;
-    K->cols = cols;
-    K->data = malloc(rows * cols * sizeof(float));
+	// resultant of first and second
 
-    for (int i = 0; i < Q->rows; i++) {
-        for (int j = 0; j < Q->cols; j++) {
-            Q->data[i * Q->cols + j] = RAND_FLOAT;
-        }
-    }
+	struct Matrix *res= malloc(sizeof(struct Matrix));
+	res->rows = first->rows;
+	res->cols = first->cols + second->cols;
+	res->size = first->rows * res->cols;
+	res->data = malloc(res->size * sizeof(int));
 
-    for (int i = 0; i < K->rows; i++) {
-        for (int j = 0; j < K->cols; j++) {
-            K->data[i * K->cols + j] = RAND_FLOAT;
-        }
-    }
 
-    struct Matrix *arr[2];
-    arr[0] = K;
-    arr[1] = Q;
+	for (int i = 0; i < first->rows; i++) {
+		for (int j = 0; j < first->cols; j++) {
+			res->data[i * res->cols + j] = first->data[i * first->cols + j];
+		}
+	}
 
-    struct Matrix *multi = concat(arr, 2);
 
-    // Corrected print loop
-    for (int i = 0; i < multi->rows; i++) {
-        for (int j = 0; j < multi->cols; j++) {
-					printf("%f ", multi->data[i * multi->cols + j]); 
-        }
-        printf("\n");
-    }
+	for (int i = 0; i < second->rows; i++) {
+		int curr_cols  = first->cols;
+		for (int j = 0; j < second->cols; j++) {
+			res->data[i * res->cols + (curr_cols + j)] = second->data[i * second->cols + j];
+		}
+	}
 
-    return 0;
+	display(res);
+	return 0;
+
 }
