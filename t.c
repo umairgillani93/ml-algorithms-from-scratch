@@ -69,7 +69,8 @@ int main() {
 		}
 	}
 
-	display(res);
+
+	//display(res);
 	return 0;
 
 }

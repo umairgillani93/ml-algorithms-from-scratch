@@ -97,40 +97,48 @@ void display(struct Matrix *m) {
 }
 
 struct Matrix *multi_head_attention(struct Matrix **arr, int SIZE) {
-    int total_rows = 0;
+    int total_cols = 0;
     for (int i = 0; i < SIZE; i++) {
-        total_rows += arr[i]->rows;
+        total_cols += arr[i]->cols;
     }
 		//prinft("total cols: %d\n", total_cols);
 
     struct Matrix *res = malloc(sizeof(struct Matrix));
     struct Matrix *first = arr[0];
-		int curr_row = first->rows;
+		int curr_col = first->cols;
 
-    res->rows = total_rows;
-    res->cols = first->cols;
-    res->size = res->rows * first->cols;
+    res->rows = first->cols;
+    res->cols = total_cols;
+    res->size = first->rows * total_cols;
     res->data = malloc(res->size * sizeof(float));
+
+		// Glue first head manually here
+		for (int i = 0; i < first->rows; i++) {
+			for (int j = 0; j < first->cols; j++) {
+				res->data[i * res->cols + j] = first->data[i * first->cols + j];
+			}
+		}
 
     for (int k = 1; k < SIZE; k++) {
         struct Matrix *b = arr[k];
         for (int i = 0; i < b->rows; i++) {
             for (int j = 0; j < b->cols; j++) {
-                res->data[(curr_row + i) * res->cols + j] = b->data[i * b->cols + j];
+                res->data[i * res->cols + (curr_col + j)] = b->data[i * b->cols + j];
             }
         }
-        curr_row += b->rows; 
+        curr_col += b->cols; 
     }
     return res;
 }
 
 struct Matrix *self_attention(struct Matrix *Q, struct Matrix *K, struct Matrix *V, 
-	 														float dk, int num_heads) {
+	 														float dk) {
 
-	struct Matrix *qk = matmul(Q, K);
+	// Source: Attention is all you need paper from google -> 2017!
+	struct matrix *qk = matmul(q, k);
 	dk_square_root(qk, dk);
 	softmax(qk);
-	struct Matrix *result = matmul(V, qk);
+	struct matrix *result = matmul(v, qk);
 	return result;
 		
 }
@@ -144,57 +152,103 @@ int main() {
 	int cols = 2;
 	int size = rows * cols;
 
-	struct Matrix *Q= malloc(sizeof(struct Matrix));
-	struct Matrix *K= malloc(sizeof(struct Matrix));
+	struct Matrix *Q1= malloc(sizeof(struct Matrix));
+	struct Matrix *K1= malloc(sizeof(struct Matrix));
 
-	Q->rows = rows;
-	Q->cols = cols;
-	Q->size = size;
-	Q->data = malloc(Q->size * sizeof(float));
+	Q1->rows = rows;
+	Q1->cols = cols;
+	Q1->size = size;
+	Q1->data = malloc(Q1->size * sizeof(float));
 
-	K->rows = rows;
-	K->cols = cols;
-	K->size = size;
-	K->data = malloc(K->size * sizeof(float));
+	K1->rows = rows;
+	K1->cols = cols;
+	K1->size = size;
+	K1->data = malloc(K1->size * sizeof(float));
+	
+	struct Matrix *Q2= malloc(sizeof(struct Matrix));
+	struct Matrix *K2= malloc(sizeof(struct Matrix));
 
-	for (int i = 0; i < Q->rows; i++) {
-		for (int j = 0; j < Q->cols; j++) {
-			Q->data[i * Q->cols + j] = RAND_FLOAT;
+	Q2->rows = rows;
+	Q2->cols = cols;
+	Q2->size = size;
+	Q2->data = malloc(Q2->size * sizeof(float));
+
+	K2->rows = rows;
+	K2->cols = cols;
+	K2->size = size;
+	K2->data = malloc(K2->size * sizeof(float));
+
+	for (int i = 0; i < Q1->rows; i++) {
+		for (int j = 0; j < Q1->cols; j++) {
+			Q1->data[i * Q1->cols + j] = RAND_FLOAT;
 		}
 	}
 
-	for (int i = 0; i < K->rows; i++) {
-		for (int j = 0; j < K->cols; j++) {
-			K->data[i * K->cols + j] = RAND_FLOAT;
+	for (int i = 0; i < K1->rows; i++) {
+		for (int j = 0; j < K1->cols; j++) {
+			K1->data[i * K1->cols + j] = RAND_FLOAT;
 		}
 	}
 
+	for (int i = 0; i < Q2->rows; i++) {
+		for (int j = 0; j < Q2->cols; j++) {
+			Q2->data[i * Q2->cols + j] = RAND_FLOAT;
+		}
+	}
+
+	for (int i = 0; i < K2->rows; i++) {
+		for (int j = 0; j < K2->cols; j++) {
+			K2->data[i * K2->cols + j] = RAND_FLOAT;
+		}
+	}
 	int num_heads = 8;
 	float d_model = 768.0f;
 	float dk = d_model / (float) num_heads;
 
 	// declare the value matrix
-	struct Matrix *V = malloc(sizeof(struct Matrix));
-	V->rows = rows;
-	V->cols = cols;
-	V->size = size;
-	V->data = malloc(V->size * sizeof(float));
+	struct Matrix *V1 = malloc(sizeof(struct Matrix));
+	V1->rows = rows;
+	V1->cols = cols;
+	V1->size = size;
+	V1->data = malloc(V1->size * sizeof(float));
 
 
 	// Initialize matrix V
-	for (int i = 0; i < V->rows; i++) {
-		for (int j = 0; j < V->cols; j++) {
-			V->data[i * V->cols + j] = RAND_FLOAT;
+	for (int i = 0; i < V1->rows; i++) {
+		for (int j = 0; j < V1->cols; j++) {
+			V1->data[i * V1->cols + j] = RAND_FLOAT;
 		}
 	}
-	//TODO: Implement the correct logic for 
-	//multihead attention  and attentions heads glueing
-	//along the columns now rows like didin t.c test file.
 
-	struct Matrix *res = multi_head_attention(**arr, 3);
-	display(res);
+
+	struct Matrix *V2 = malloc(sizeof(struct Matrix));
+	V2->rows = rows;
+	V2->cols = cols;
+	V2->size = size;
+	V2->data = malloc(V2->size * sizeof(float));
+
+
+	// Initialize matrix V
+	for (int i = 0; i < V2->rows; i++) {
+		for (int j = 0; j < V2->cols; j++) {
+			V2->data[i * V2->cols + j] = RAND_FLOAT;
+		}
+	}
+
+	struct Matrix *head1 = self_attention(Q1, K1, V1, dk); 
+	struct Matrix *head2 = self_attention(Q2, K2, V2, dk); 
+
+	struct Matrix *arr[2];
+	arr[0] = head1;
+	arr[1] = head2;
+
+	int SIZE = 2;
+	struct Matrix *final = multi_head_attention(arr, SIZE);
+
+	display(final);
 
 	
+
 	return 0;
 }
 
