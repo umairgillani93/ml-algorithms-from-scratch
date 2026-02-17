@@ -135,10 +135,10 @@ struct Matrix *self_attention(struct Matrix *Q, struct Matrix *K, struct Matrix 
 	 														float dk) {
 
 	// Source: Attention is all you need paper from google -> 2017!
-	struct matrix *qk = matmul(q, k);
+	struct Matrix *qk = matmul(Q, K);
 	dk_square_root(qk, dk);
 	softmax(qk);
-	struct matrix *result = matmul(v, qk);
+	struct Matrix *result = matmul(V, qk);
 	return result;
 		
 }
