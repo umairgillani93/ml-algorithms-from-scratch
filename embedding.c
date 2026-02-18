@@ -21,15 +21,15 @@ Tensor create_tensor(int rows, int cols) {
 	// TODO:
 }
 
-//Embedding *forward(Embedding *e, Tensor *tokens, Embedding *out) {
-//	int size = tokens->size;
-//	for (int i = 0; i < size; i++) {
-//		for (int j = 0; j < e->emb_size; j++) {
-//			out[i * e->emb_dim + j] = e->weights[tokens[i] * e->emb_dim + j];
-//		}
-//	}
-//	return out;
-//}
+Embedding *forward(Embedding *e, Tensor *tokens, Embedding *out) {
+	int size = tokens->size;
+	for (int i = 0; i < size; i++) {
+		for (int j = 0; j < e->emb_size; j++) {
+			out[i * e->emb_dim + j] = e->weights[tokens[i] * e->emb_dim + j];
+		}
+	}
+	return out;
+}
 
 
 Embedding *create_embeddings(int vocab_size, int emb_dim) {
