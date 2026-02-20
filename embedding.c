@@ -33,9 +33,6 @@ Tensor *create_tensor() {
 	for (int i = 0; i < VOCAB_SIZE; i++) {
 		t->data[i] = (rand() % VOCAB_SIZE) + 1;
 	}
-	for (int i = 0; i < VOCAB_SIZE; i++) {
-		printf("%d ", t->data[i]);
-	}
 	return t;
 }
 
@@ -53,16 +50,50 @@ Embedding *create_embeddings(int vocab_size, int emb_dim) {
 	}
 
 	return emb;
+
 }
 
+void emb_shape(Embedding *e) {
+	printf("(%d, %d)\n", e->vocab_size, e->emb_dim);
+}
+
+Embedding *layer_norm(Embedding *e) {
+	Embedding *out = malloc(sizeof(Embedding));
+	out->vocab_size = e->vocab_size;
+	out->emb_dim = e->emb_dim;
+	out->weights = malloc(e->vocab_size * out->emb_dim * sizeof(float));
+
+	for (int i = 0; i < e->vocab_size; i++) {
+		float *row = e->weights + (i * e->emb_dim);
+		float sum = 0;
+		for (int j = 0; j < e->emb_dim; j++) {
+			sum += row[j];
+		}
+		float mean = sum / e->vocab_size;
+		//printf("iteration: %d, sum: %f, mean: %f\n", i, sum, mean);
+		// this should return embedding against all the tokens now
+		for (int k = 0; k < e->emb_dim; k++) {
+			out->weights[i * e->emb_dim + k] = mean - (e->weights[i * e->emb_dim + k]);
+		}
+	}
+	return e;
+}
 
 Embedding *forward(Embedding *e, Tensor *tokens) {
+	// Forward pass for generatin the token embeddings
 	Embedding *out = malloc(sizeof(Embedding));
-	out->vocab_size = 1;
+	out->vocab_size = e->vocab_size;
 	out->emb_dim = e->emb_dim;
 	out->weights= malloc(out->vocab_size * out->emb_dim* sizeof(float));
 
-	for (int i = 0; i < 1; i++) {
+	// Lets make a change here
+	// Currently it's returning the embedding for only the first token having shape (1, 32)
+	// But we need it for all the rows
+	// Perhapts that's the mistake I'm doing here in this loop
+	// Lets see now!!
+	// Perfectooo!! that's was the issue 
+	// Now lets' check it for Our LayerNorm if it works
+	for (int i = 0; i < e->vocab_size; i++) {
 		for (int j = 0; j < e->emb_dim; j++) {
 			out->weights[i * e->emb_dim + j] = e->weights[tokens->data[i]* e->emb_dim + j];
 		}
@@ -85,14 +116,15 @@ void display_tensor(Tensor *t) {
 	}
 }
 
-
 int main() {
 	srand(time(NULL));
 	Embedding *emb = create_embeddings(VOCAB_SIZE, EMB_DIM);
-  display_emb(emb);
+  //display_emb(emb);
 	Tensor *tokens = create_tensor();
 	Embedding *res = forward(emb, tokens);
-	//display_tensor(tokens);
+	Embedding *ln = layer_norm(res);
+	display_emb(ln);
+	
 
 	return 0;
 }
