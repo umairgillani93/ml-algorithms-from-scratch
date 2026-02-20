@@ -1,10 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <math.h>
 
 #define RAND_FLOAT  (float) rand() / (float) RAND_MAX
 #define EMB_DIM 32 
 #define VOCAB_SIZE 10
+#define EPS 1e-5
 
 typedef struct {
 	char *dtype; 
@@ -53,7 +55,8 @@ Embedding *create_embeddings(int vocab_size, int emb_dim) {
 
 }
 
-void emb_shape(Embedding *e) {
+
+void shape(Embedding *e) {
 	printf("(%d, %d)\n", e->vocab_size, e->emb_dim);
 }
 
@@ -63,20 +66,29 @@ Embedding *layer_norm(Embedding *e) {
 	out->emb_dim = e->emb_dim;
 	out->weights = malloc(e->vocab_size * out->emb_dim * sizeof(float));
 
+	// Calcuate the mean
 	for (int i = 0; i < e->vocab_size; i++) {
 		float *row = e->weights + (i * e->emb_dim);
-		float sum = 0;
+		float *out_row = out->weights + (i * e->emb_dim);
+		float sum = 0.0f;
+		float var_sum = 0.0f;
+
 		for (int j = 0; j < e->emb_dim; j++) {
 			sum += row[j];
 		}
-		float mean = sum / e->vocab_size;
-		//printf("iteration: %d, sum: %f, mean: %f\n", i, sum, mean);
-		// this should return embedding against all the tokens now
-		for (int k = 0; k < e->emb_dim; k++) {
-			out->weights[i * e->emb_dim + k] = mean - (e->weights[i * e->emb_dim + k]);
+		float mean = sum / e->emb_dim;
+
+		// Calcuate the variance
+		for (int j = 0; j < e->emb_dim; j++) {
+			var_sum += ((row[j] - mean) * (row[j] - mean));
 		}
-	}
-	return e;
+		float var = var_sum / e->emb_dim;
+		float std = sqrtf(var + EPS);
+		for (int j = 0; j < e->emb_dim; j++) {
+			out_row[j] = (row[j] - mean) / std;
+		}
+	 }
+	return out;
 }
 
 Embedding *forward(Embedding *e, Tensor *tokens) {
@@ -86,13 +98,6 @@ Embedding *forward(Embedding *e, Tensor *tokens) {
 	out->emb_dim = e->emb_dim;
 	out->weights= malloc(out->vocab_size * out->emb_dim* sizeof(float));
 
-	// Lets make a change here
-	// Currently it's returning the embedding for only the first token having shape (1, 32)
-	// But we need it for all the rows
-	// Perhapts that's the mistake I'm doing here in this loop
-	// Lets see now!!
-	// Perfectooo!! that's was the issue 
-	// Now lets' check it for Our LayerNorm if it works
 	for (int i = 0; i < e->vocab_size; i++) {
 		for (int j = 0; j < e->emb_dim; j++) {
 			out->weights[i * e->emb_dim + j] = e->weights[tokens->data[i]* e->emb_dim + j];
@@ -124,6 +129,7 @@ int main() {
 	Embedding *res = forward(emb, tokens);
 	Embedding *ln = layer_norm(res);
 	display_emb(ln);
+	shape(ln);
 	
 
 	return 0;
