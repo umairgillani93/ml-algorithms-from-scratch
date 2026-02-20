@@ -33,9 +33,12 @@ Tensor *create_tensor() {
 	for (int i = 0; i < VOCAB_SIZE; i++) {
 		t->data[i] = (rand() % VOCAB_SIZE) + 1;
 	}
+	for (int i = 0; i < VOCAB_SIZE; i++) {
+		printf("%d ", t->data[i]);
+	}
 	return t;
-
 }
+
 
 Embedding *create_embeddings(int vocab_size, int emb_dim) {
 	Embedding *emb = malloc(sizeof(Embedding));
@@ -67,7 +70,7 @@ Embedding *forward(Embedding *e, Tensor *tokens) {
 	return out;
 }
 
-void display(Embedding *e) {
+void display_emb(Embedding *e) {
 	for (int i = 0; i < e->vocab_size; i++) {
 		for (int j = 0; j < e->emb_dim; j++) {
 			printf("%f ", e->weights[i * e->emb_dim + j]);
@@ -76,20 +79,20 @@ void display(Embedding *e) {
 	}
 }
 
+void display_tensor(Tensor *t) {
+	for (int i = 0; i < VOCAB_SIZE; i++) {
+		printf("%d ", t->data[i]);
+	}
+}
+
 
 int main() {
 	srand(time(NULL));
 	Embedding *emb = create_embeddings(VOCAB_SIZE, EMB_DIM);
-  //display(emb);
+  display_emb(emb);
 	Tensor *tokens = create_tensor();
 	Embedding *res = forward(emb, tokens);
-	
-	for (int i = 0; i < res->vocab_size; i++) {
-		for (int j = 0; j < res->emb_dim; j++) {
-			printf("%f ", res->weights[i * res->emb_dim + j]);
-		}
-		printf("\n");
-	}
+	//display_tensor(tokens);
 
 	return 0;
 }
