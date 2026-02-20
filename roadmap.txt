@@ -17,5 +17,13 @@ WHAT WE NEED!!
 - Embedding Model
 - Positional Embedding
 - Layer Noram + Addition
-- FFN
+
+Layers: 
+
+- Embedding
+- Multi-Head Attention
+- Feed Forward Network (FFN)
+- LayerNorm
+- Transformer Block
+- Full Transformer Model FFN
 
