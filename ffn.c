@@ -53,7 +53,7 @@ Vector *ffn(Embedding *e) {
 	//
 	Vector *out = malloc(sizeof(Vector));
 	out->size= e->vocab_size;
-	out->data = malloc(sizeof(e->vocab_size * sizeof(float)));
+	out->data = malloc(e->vocab_size * sizeof(float));
 	
 	/*
 	 * Res = [
@@ -73,7 +73,7 @@ Vector *ffn(Embedding *e) {
 	for (int i = 0; i < e->vocab_size; i++) {
 		float y = 0.0f;
 		for (int j = 0; j < e->emb_dim; j++) {
-			y += weights[i] * e->weights[i * e->emb_dim + j];	
+			y += weights[j] * e->weights[i * e->emb_dim + j];	
 		}
 		out->data[i] = y;
 	}
