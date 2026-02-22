@@ -45,11 +45,12 @@ Tensor *tensor_create(int ndim, int *shape) {
 }
 
 void tensor_free(Tensor *t) {
-	free; t->stride;
-	free; t->shape;
-	free; t->data;
-	free; t;
-	printf("Freed Successfully!\n");
+	if (!t) return;
+	free(t->data);
+	free(t->stride);
+	free(t->shape);
+	free(t);
+	printf("Freed successfully!\n");
 }
 
 void tensor_get(Tensor *t, int size) {
