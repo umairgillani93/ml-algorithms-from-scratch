@@ -10,7 +10,7 @@
 #define BATCH_SIZE 2
 #define EPS 1e-5
 
-Tensor *tensor_create(int ndim, int *shape) {
+Tensor *tensor_create(int ndim, int *shape, int size) {
 	Tensor *t = malloc(sizeof(Tensor));
 	if (!t) {
 		printf("something's wrong with memory allocation\n-> aborting..");
@@ -18,10 +18,6 @@ Tensor *tensor_create(int ndim, int *shape) {
 	}
 	t->shape = malloc(ndim * sizeof(int));
 	t->stride = malloc(ndim * sizeof(int));
-	int size = 1;
-	for (int i = 0; i < ndim; i++) {
-		size *= shape[i];
-	}
 	t->data = malloc(size * sizeof(float));
 
 
@@ -69,7 +65,7 @@ int main() {
 	shape[1] = SEQ_LEN;
 	shape[2] = EMB_DIM;
 
-	Tensor *t = tensor_create(ndim, shape);
+	Tensor *t = tensor_create(ndim, shape, size);
 	tensor_get(t, size);
 	tensor_free(t);
 
