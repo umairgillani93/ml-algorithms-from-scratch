@@ -10,7 +10,7 @@
 #define BATCH_SIZE 2
 #define EPS 1e-5
 
-Tensor *tensor_create(int ndim, int *shape, int size) {
+Tensor *tensor_create(int ndim, int *shape) {
 	Tensor *t = malloc(sizeof(Tensor));
 	if (!t) {
 		printf("something's wrong with memory allocation\n-> aborting..");
@@ -18,12 +18,16 @@ Tensor *tensor_create(int ndim, int *shape, int size) {
 	}
 	t->shape = malloc(ndim * sizeof(int));
 	t->stride = malloc(ndim * sizeof(int));
-	t->data = malloc(size * sizeof(float));
 
 
 	// define the shape of Tensor
 	for (int i = 0; i < ndim; i++) {
 		t->shape[i] = shape[i];
+	}
+	// calcuate size of tensor in self-contained fashion
+	int size = 1;
+	for (int i = 0; i < ndim; i++) {
+		size *= shape[i];
 	}
 	//ndim - 1 > is always 1, fastest changing dimension
 	// for next ones wer reveser loop and assign
@@ -33,6 +37,7 @@ Tensor *tensor_create(int ndim, int *shape, int size) {
 		t->stride[i] = t->stride[i + 1] * t->shape[i + 1];
 	}
 	// define the data now
+	t->data = malloc(size * sizeof(float));
 	for (int i = 0; i < size; i++) {
 		t->data[i] = (rand() % 10) + 1.0f;
 	}	
@@ -49,7 +54,12 @@ void tensor_free(Tensor *t) {
 	printf("Freed successfully!\n");
 }
 
-void tensor_get(Tensor *t, int size) {
+void tensor_get(Tensor *t) {
+	int size = 1;
+	for (int i = 0; i < t->ndim; i++) {
+		size *= t->shape[i];
+	}
+	printf("size: %d\n", size);
 	for (int i = 0; i < size; i++) {
 		printf("%0.2f ", t->data[i]);
 	}		
@@ -59,14 +69,14 @@ int main() {
 	srand(time(NULL));
 	int ndim = 3;
 	int *shape = malloc(ndim * sizeof(int));
-	int size = BATCH_SIZE * SEQ_LEN * EMB_DIM;
+	//int size = BATCH_SIZE * SEQ_LEN * EMB_DIM;
 
 	shape[0] = BATCH_SIZE;
 	shape[1] = SEQ_LEN;
 	shape[2] = EMB_DIM;
 
-	Tensor *t = tensor_create(ndim, shape, size);
-	tensor_get(t, size);
+	Tensor *t = tensor_create(ndim, shape);
+	tensor_get(t);
 	tensor_free(t);
 
 	return 0;
