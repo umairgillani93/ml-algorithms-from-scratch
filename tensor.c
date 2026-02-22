@@ -10,53 +10,67 @@
 #define BATCH_SIZE 2
 #define EPS 1e-5
 
-Tensor *create_3d_tensor() {
+Tensor *tensor_create(int ndim, int *shape) {
 	Tensor *t = malloc(sizeof(Tensor));
 	if (!t) {
-		printf("Something's wrong with Memory allocation\n-> Aborting..");
+		printf("something's wrong with memory allocation\n-> aborting..");
 		return NULL;
 	}
-	t->shape = malloc(3 * sizeof(int));
-	t->shape[0] = BATCH_SIZE;
-	t->shape[1] = SEQ_LEN;
-	t->shape[2] = EMB_DIM;
-
-	// We'll define stride later
-	t->stride= malloc(3 * sizeof(int));
-	t->stride[0] = SEQ_LEN * EMB_DIM; // for next batch in memory we need SEQ_LEN * EMB_DIM steps to have next batch
-	t->stride[1] = EMB_DIM; // To have next sequence in memory we need SEQ_LEN bytes shifted
-	t->stride[2] = 1; // To have next float in EMB_DIM axis we need single float byte shifted
-	
-	t->ndim = 3;
-	t->data = malloc(BATCH_SIZE * SEQ_LEN * EMB_DIM * sizeof(float));
-
-	for (int b = 0; b < BATCH_SIZE; b++) {
-		for (int s = 0; s < SEQ_LEN; s++) {
-			for (int e = 0; e < EMB_DIM; e++) {
-				int idx = b * t->stride[0] + s * t->stride[1] + e * t->stride[2];
-				t->data[idx] = (float) (rand() % SEQ_LEN) + 1.0f;
-			}
-		}
+	t->shape = malloc(ndim * sizeof(int));
+	t->stride = malloc(ndim * sizeof(int));
+	int size = 1;
+	for (int i = 0; i < ndim; i++) {
+		size *= shape[i];
 	}
+	t->data = malloc(size * sizeof(float));
+
+
+	// define the shape of Tensor
+	for (int i = 0; i < ndim; i++) {
+		t->shape[i] = shape[i];
+	}
+	//ndim - 1 > is always 1, fastest changing dimension
+	// for next ones wer reveser loop and assign
+	// stride[i] = t->stride[i + 1] * t->shape[i + 1]
+	t->stride[ndim - 1] = 1;
+	for (int i = ndim - 2; i >= 0; i--) {
+		t->stride[i] = t->stride[i + 1] * t->shape[i + 1];
+	}
+	// define the data now
+	for (int i = 0; i < size; i++) {
+		t->data[i] = (rand() % 10) + 1.0f;
+	}	
 
 	return t;
 }
 
-void display_3d_tensor(Tensor *t) {
-	for (int b = 0; b < BATCH_SIZE; b++) {
-		for (int s = 0; s < SEQ_LEN; s++) {
-			for (int e = 0; e < EMB_DIM; e++) {
-				int idx = b * t->stride[0] + s * t->stride[1] + e * t->stride[2];
-				printf("%0.2f ", t->data[idx]);
-			}
-			printf("\n");
-		}
-		printf("\n");
-	}
+void tensor_free(Tensor *t) {
+	free; t->stride;
+	free; t->shape;
+	free; t->data;
+	free; t;
+	printf("Freed Successfully!\n");
+}
+
+void tensor_get(Tensor *t, int size) {
+	for (int i = 0; i < size; i++) {
+		printf("%0.2f ", t->data[i]);
+	}		
 }
 
 int main() {
-	Tensor *t = create_3d_tensor();
-	display_3d_tensor(t);
+	srand(time(NULL));
+	int ndim = 3;
+	int *shape = malloc(ndim * sizeof(int));
+	int size = BATCH_SIZE * SEQ_LEN * EMB_DIM;
+
+	shape[0] = BATCH_SIZE;
+	shape[1] = SEQ_LEN;
+	shape[2] = EMB_DIM;
+
+	Tensor *t = tensor_create(ndim, shape);
+	tensor_get(t, size);
+	tensor_free(t);
+
 	return 0;
 }
