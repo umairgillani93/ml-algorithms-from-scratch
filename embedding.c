@@ -2,10 +2,12 @@
 #include <stdlib.h>
 #include <time.h>
 #include <math.h>
+#include "tensor.h"
 
 #define RAND_FLOAT  (float) rand() / (float) RAND_MAX
 #define EMB_DIM 32 
-#define VOCAB_SIZE 10
+#define SEQ_LEN 10
+#define BATCH_SIZE 1
 #define EPS 1e-5
 
 typedef struct {
@@ -19,22 +21,23 @@ typedef struct {
 	float *weights;
 } Embedding;
 
-Tensor *create_tensor() {
+Tensor *create_3d_tensor() {
 	Tensor *t = malloc(sizeof(Tensor));
 	if (!t) {
-		printf("Something's wrong will Memory allocation\n-> Aborting..");
+		printf("Something's wrong with Memory allocation\n-> Aborting..");
 		return NULL;
 	}
+	t->shape = malloc(3 * sizeof(int));
+	t->shape[0] = BATCH_SIZE;
+	t->shape[1] = SEQ_LEN;
+	t->shape[2] = EMB_DIM;
+
+	// We'll define stride later
 	
-	t->dtype = "int";
-	t->data = malloc(VOCAB_SIZE	* sizeof(int));
-	if (!t->data) {
-		printf("Something's wrong will Memory allocation\n-> Aborting..");
-		return NULL;
-	}
-	for (int i = 0; i < VOCAB_SIZE; i++) {
-		t->data[i] = (rand() % VOCAB_SIZE) + 1;
-	}
+	t->ndim = 3;
+	t->data = malloc(t->shape[1] * t->shape[2] * sizeof(float));
+
+
 	return t;
 }
 
