@@ -6,6 +6,5 @@ typedef struct {
 	int *stride;
 	int ndim;
 	float *data;
-	int size;
 } Tensor;
 

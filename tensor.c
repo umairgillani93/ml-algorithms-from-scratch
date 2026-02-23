@@ -29,6 +29,7 @@ Tensor *tensor_create(int ndim, int *shape) {
 	for (int i = 0; i < ndim; i++) {
 		size *= shape[i];
 	}
+	printf("Size of tensor: %d\n", size);
 	//ndim - 1 > is always 1, fastest changing dimension
 	// for next ones wer reveser loop and assign
 	// stride[i] = t->stride[i + 1] * t->shape[i + 1]
@@ -36,10 +37,12 @@ Tensor *tensor_create(int ndim, int *shape) {
 	for (int i = ndim - 2; i >= 0; i--) {
 		t->stride[i] = t->stride[i + 1] * t->shape[i + 1];
 	}
+	printf("Stride: %d, %d, %d\n", t->stride[0], t->stride[1], t->stride[2]);
 	// define the data now
 	t->data = malloc(size * sizeof(float));
 	for (int i = 0; i < size; i++) {
 		t->data[i] = (rand() % 10) + 1.0f;
+		// printf("%f ", t->data[i]);
 	}	
 
 	return t;
@@ -55,6 +58,7 @@ void tensor_free(Tensor *t) {
 }
 
 void tensor_get(Tensor *t) {
+	if (!t) return;
 	int size = 1;
 	for (int i = 0; i < t->ndim; i++) {
 		size *= t->shape[i];
@@ -76,6 +80,7 @@ int main() {
 	shape[2] = EMB_DIM;
 
 	Tensor *t = tensor_create(ndim, shape);
+	t->ndim = ndim;
 	tensor_get(t);
 	tensor_free(t);
 
