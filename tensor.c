@@ -98,8 +98,28 @@ void tensor_get(Tensor *t) {
 	}		
 }
 
+Tensor *transpose(Tensor *a) {
+	int ndim = 2;
+	int *shape = malloc(ndim * sizeof(int));
+	shape[0] = a->shape[1];
+	shape[1] = a->shape[0];
+	Tensor *t = create_tensor(ndim, shape);
+
+	int size = 1;
+	for (int i = 0; i < ndim; i++) {
+		size *= shape[i];
+	}
+
+	for (int j = 0; j < size; j++) {
+		t->data[i] = a->data[i];
+	}
+	
+	return t;
+}
+
 int main() {
-	srand(time(NULL));
+	int seed = 32;
+	srand(seed);
 
 	int ndim_a = 2;
 	int ndim_b = 2;
@@ -113,12 +133,17 @@ int main() {
 	shape_b[1] = SEQ_LEN;
 
 	Tensor *a = tensor_create(ndim_a, shape_a);
-	Tensor *b = tensor_create(ndim_b, shape_b);
-	a->ndim = ndim_a;
-	b->ndim = ndim_b;
+	//Tensor *b = tensor_create(ndim_b, shape_b);
+	tensor_get(a);
+	printf("\n");
+	Tensor *t = transpose(a);
+	tensor_get(t);
+	
+	//a->ndim = ndim_a;
+	//b->ndim = ndim_b;
 
-	Tensor *r = matmul(a, b);
-	tensor_get(r);
+	//Tensor *r = matmul(a, b);
+	//tensor_get(r);
 
 
 	return 0;
