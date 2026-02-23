@@ -18,6 +18,7 @@ Tensor *tensor_create(int ndim, int *shape) {
 	}
 	t->shape = malloc(ndim * sizeof(int));
 	t->stride = malloc(ndim * sizeof(int));
+	t->ndim = ndim;
 
 
 	// define the shape of Tensor
@@ -48,6 +49,34 @@ Tensor *tensor_create(int ndim, int *shape) {
 	return t;
 }
 
+Tensor *matmul(Tensor *a, Tensor *b) {
+	int rows_a = a->shape[0];
+	int cols_a = a->shape[1];
+
+	int rows_b = b->shape[0];
+	int cols_b = b->shape[1];
+
+	// resultant tensor having shape (rows_a, cols_b);
+	int ndim_r = 2;
+	int *shape_r = malloc(2 * sizeof(int));
+	shape_r[0] = a->shape[0];
+	shape_r[1] = b->shape[1];
+
+	Tensor *r = tensor_create(ndim_r, shape_r);
+	printf("Created resultant tensor\n");
+
+	for (int i = 0; i < rows_a; i++) {
+		for (int j = 0; j < cols_b; j++) {
+			float sum = 0.0f;
+			for (int k = 0; k < cols_a; k++) {
+				sum += (a->data[i * a->stride[0] + k * a->stride[1]]  * b->data[k * b->stride[0] + j * b->stride[1]]);
+			}
+			r->data[i * r->stride[0] + j * r->stride[1]] = sum;
+		}
+	}
+	return r;
+}
+
 void tensor_free(Tensor *t) {
 	if (!t) return;
 	free(t->data);
@@ -71,18 +100,26 @@ void tensor_get(Tensor *t) {
 
 int main() {
 	srand(time(NULL));
-	int ndim = 3;
-	int *shape = malloc(ndim * sizeof(int));
-	//int size = BATCH_SIZE * SEQ_LEN * EMB_DIM;
 
-	shape[0] = BATCH_SIZE;
-	shape[1] = SEQ_LEN;
-	shape[2] = EMB_DIM;
+	int ndim_a = 2;
+	int ndim_b = 2;
+	int *shape_a = malloc(ndim_a * sizeof(int));
+	int *shape_b = malloc(ndim_b * sizeof(int));
 
-	Tensor *t = tensor_create(ndim, shape);
-	t->ndim = ndim;
-	tensor_get(t);
-	tensor_free(t);
+	shape_a[0] = SEQ_LEN;
+	shape_a[1] = EMB_DIM;
+
+	shape_b[0] = EMB_DIM;
+	shape_b[1] = SEQ_LEN;
+
+	Tensor *a = tensor_create(ndim_a, shape_a);
+	Tensor *b = tensor_create(ndim_b, shape_b);
+	a->ndim = ndim_a;
+	b->ndim = ndim_b;
+
+	Tensor *r = matmul(a, b);
+	tensor_get(r);
+
 
 	return 0;
 }
