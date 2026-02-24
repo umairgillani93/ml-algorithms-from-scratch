@@ -9,6 +9,7 @@ typedef struct {
 	float *data;
 } Tensor;
 
+
 Tensor *tensor_create(int ndim, int *shape) {
 	Tensor *t = malloc(sizeof(Tensor));
 	if (!t) {

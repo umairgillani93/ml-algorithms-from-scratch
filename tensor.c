@@ -13,7 +13,7 @@
 Tensor *tensor_create(int ndim, int *shape) {
 	Tensor *t = malloc(sizeof(Tensor));
 	if (!t) {
-		printf("something's wrong with memory allocation\n-> aborting..");
+		fprintf(stderr, "something's wrong with memory allocation\n-> aborting..");
 		return NULL;
 	}
 	t->shape = malloc(ndim * sizeof(int));
@@ -43,6 +43,45 @@ Tensor *tensor_create(int ndim, int *shape) {
 	t->data = malloc(size * sizeof(float));
 	for (int i = 0; i < size; i++) {
 		t->data[i] = (rand() % 10) + 1.0f;
+		// printf("%f ", t->data[i]);
+	}	
+
+	return t;
+}
+
+Tensor *tensor_create_weights(int ndim, float *shape) {
+	Tensor *t = malloc(sizeof(Tensor));
+	if (!t) {
+		fprintf(stderr, "something's wrong with memory allocation\n-> aborting..");
+		return NULL;
+	}
+	t->shape = malloc(ndim * sizeof(int));
+	t->stride = malloc(ndim * sizeof(int));
+	t->ndim = ndim;
+
+
+	// define the shape of Tensor
+	for (int i = 0; i < ndim; i++) {
+		t->shape[i] = shape[i];
+	}
+	// calcuate size of tensor in self-contained fashion
+	int size = 1;
+	for (int i = 0; i < ndim; i++) {
+		size *= shape[i];
+	}
+	printf("Size of tensor: %d\n", size);
+	//ndim - 1 > is always 1, fastest changing dimension
+	// for next ones wer reveser loop and assign
+	// stride[i] = t->stride[i + 1] * t->shape[i + 1]
+	t->stride[ndim - 1] = 1;
+	for (int i = ndim - 2; i >= 0; i--) {
+		t->stride[i] = t->stride[i + 1] * t->shape[i + 1];
+	}
+	printf("Stride: %d, %d, %d\n", t->stride[0], t->stride[1], t->stride[2]);
+	// define the data now
+	t->data = malloc(size * sizeof(float));
+	for (int i = 0; i < size; i++) {
+		t->data[i] = RAND_FLOAT;
 		// printf("%f ", t->data[i]);
 	}	
 
@@ -116,26 +155,67 @@ Tensor *transpose(Tensor *a) {
 	return t;
 }
 
+int tensor_size(Tensor *t) {
+	int size = 1;
+	for (int i = 0; i < t->ndim; i++) {
+		size *= t->shape[i];
+	}
+	return size;
+}	
+
+void tensor_shape(Tensor *t) {
+	printf("(%d, %d)\n", t->shape[0], t->shape[1]);
+}
+
 int main() {
 	int seed = 32;
 	srand(seed);
 
-	int ndim_a = 2;
-	int ndim_b = 2;
-	int *shape_a = malloc(ndim_a * sizeof(int));
-	int *shape_b = malloc(ndim_b * sizeof(int));
+	int ndim = 2;
+	//Tensor *tokens = malloc(sizeof(Tensor));
+	//Tensor *q_weights = malloc(sizeof(Tensor));
+	//Tensor *k_weights = malloc(sizeof(Tensor));
+	//Tensor *v_weights = malloc(sizeof(Tensor));
 
-	shape_a[0] = 2;
-	shape_a[1] = 3;
+	int *shape_tokens = malloc(ndim * sizeof(int));
+	float *shape_q_weights = malloc(ndim * sizeof(float));
+	float *shape_k_weights = malloc(ndim * sizeof(float));
+	float *shape_v_weights = malloc(ndim * sizeof(float));
 
-	shape_b[0] = 3;
-	shape_b[1] = 2;
+	// define shape_tokens
 
-	Tensor *a = tensor_create(ndim_a, shape_a);
-	//Tensor *b = tensor_create(ndim_b, shape_b);
-	tensor_get(a);
-	printf("\n");
-	Tensor *t = transpose(a);
-	tensor_get(t);
+	shape_tokens[0] = 1;
+	shape_tokens[1] = 32; // this is for token embeddings
+	
+	// consider this for a single token query weights
+	shape_q_weights[0] = 1;
+	shape_q_weights[1] = EMB_DIM;
+
+	// key weights
+	shape_k_weights[0] = 1;
+	shape_k_weights[1] = EMB_DIM;
+
+	// value weights
+	shape_v_weights[0] = 1;
+	shape_v_weights[1] = EMB_DIM;
+
+
+	/* let's say we have a single token word "sky"
+	 * this token will have it's own embedding
+	 * and this embedding will have it's own projections all of them query, key and value
+	 * say "sky" has embedding -> e and has q_proj -> q and has key_proj -> k and has v_proj -> value
+	 * so that becomes e * wq = Q, e * wk = K and e * wv = V
+	 * then onwords we calculate the attention for each single token
+	 */
+
+	// Attention(Q, K, V) = softmax(q * transpose(k) / sqrt(dk)) * v
+	Tensor *tokens = tensor_create(ndim, shape_tokens);
+	Tensor *q = tensor_create_weights(ndim, shape_q_weights);	
+	Tensor *k = tensor_create_weights(ndim, shape_k_weights);
+	Tensor *v = tensor_create_weights(ndim, shape_v_weights);
+
+	Tensor *Q = matmul(tokens, q);
+	tensor_get(Q);
+	
 	return 0;
 }
