@@ -99,19 +99,11 @@ void tensor_get(Tensor *t) {
 }
 
 Tensor *transpose(Tensor *a) {
-	/*
-	 * a->shape = [2, 3]
-	 * t->shape = [3, 2]
-	 * a->stride = [3, 1]
-	 * t->stride = [a->strid[0] - 1, 1]
-	 */
 	int ndim = 2;
 	int *shape = malloc(ndim * sizeof(int));
 	shape[0] = a->shape[1];
 	shape[1] = a->shape[0];
 	Tensor *t = tensor_create(ndim, shape);
-	t->stride[0] = 1;
-	t->stride[1] = a->shape[0];
 	
 	int rows_a = a->shape[0];
 	int cols_a = a->shape[1];
