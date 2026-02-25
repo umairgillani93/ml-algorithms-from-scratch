@@ -30,7 +30,7 @@ Tensor *tensor_create(int ndim, int *shape) {
 	for (int i = 0; i < ndim; i++) {
 		size *= shape[i];
 	}
-	printf("Size of tensor: %d\n", size);
+	//printf("Size of tensor: %d\n", size);
 	//ndim - 1 > is always 1, fastest changing dimension
 	// for next ones wer reveser loop and assign
 	// stride[i] = t->stride[i + 1] * t->shape[i + 1]
@@ -38,7 +38,7 @@ Tensor *tensor_create(int ndim, int *shape) {
 	for (int i = ndim - 2; i >= 0; i--) {
 		t->stride[i] = t->stride[i + 1] * t->shape[i + 1];
 	}
-	printf("Stride: %d, %d, %d\n", t->stride[0], t->stride[1], t->stride[2]);
+	//printf("Stride: %d, %d, %d\n", t->stride[0], t->stride[1], t->stride[2]);
 	// define the data now
 	t->data = malloc(size * sizeof(float));
 	for (int i = 0; i < size; i++) {
@@ -49,7 +49,7 @@ Tensor *tensor_create(int ndim, int *shape) {
 	return t;
 }
 
-Tensor *tensor_create_weights(int ndim, float *shape) {
+Tensor *tensor_create_weights(int ndim, int *shape) {
 	Tensor *t = malloc(sizeof(Tensor));
 	if (!t) {
 		fprintf(stderr, "something's wrong with memory allocation\n-> aborting..");
@@ -69,7 +69,7 @@ Tensor *tensor_create_weights(int ndim, float *shape) {
 	for (int i = 0; i < ndim; i++) {
 		size *= shape[i];
 	}
-	printf("Size of tensor: %d\n", size);
+	//printf("Size of tensor: %d\n", size);
 	//ndim - 1 > is always 1, fastest changing dimension
 	// for next ones wer reveser loop and assign
 	// stride[i] = t->stride[i + 1] * t->shape[i + 1]
@@ -77,7 +77,7 @@ Tensor *tensor_create_weights(int ndim, float *shape) {
 	for (int i = ndim - 2; i >= 0; i--) {
 		t->stride[i] = t->stride[i + 1] * t->shape[i + 1];
 	}
-	printf("Stride: %d, %d, %d\n", t->stride[0], t->stride[1], t->stride[2]);
+	//printf("Stride: %d, %d, %d\n", t->stride[0], t->stride[1], t->stride[2]);
 	// define the data now
 	t->data = malloc(size * sizeof(float));
 	for (int i = 0; i < size; i++) {
@@ -131,7 +131,7 @@ void tensor_get(Tensor *t) {
 	for (int i = 0; i < t->ndim; i++) {
 		size *= t->shape[i];
 	}
-	printf("size: %d\n", size);
+	//printf("size: %d\n", size);
 	for (int i = 0; i < size; i++) {
 		printf("%0.2f ", t->data[i]);
 	}		
@@ -155,12 +155,13 @@ Tensor *transpose(Tensor *a) {
 	return t;
 }
 
-int tensor_size(Tensor *t) {
+void tensor_size(Tensor *t) {
 	int size = 1;
 	for (int i = 0; i < t->ndim; i++) {
 		size *= t->shape[i];
 	}
-	return size;
+	printf("Tensor size: %d\n", size);
+	// return size;
 }	
 
 void tensor_shape(Tensor *t) {
@@ -178,25 +179,25 @@ int main() {
 	//Tensor *v_weights = malloc(sizeof(Tensor));
 
 	int *shape_tokens = malloc(ndim * sizeof(int));
-	float *shape_q_weights = malloc(ndim * sizeof(float));
-	float *shape_k_weights = malloc(ndim * sizeof(float));
-	float *shape_v_weights = malloc(ndim * sizeof(float));
+	int *shape_q_weights = malloc(ndim * sizeof(float));
+	int *shape_k_weights = malloc(ndim * sizeof(float));
+	int *shape_v_weights = malloc(ndim * sizeof(float));
 
 	// define shape_tokens
 
-	shape_tokens[0] = 1;
-	shape_tokens[1] = 32; // this is for token embeddings
+	shape_tokens[0] = SEQ_LEN;
+	shape_tokens[1] = EMB_DIM; // this is for token embeddings
 	
 	// consider this for a single token query weights
-	shape_q_weights[0] = 1;
+	shape_q_weights[0] = EMB_DIM;
 	shape_q_weights[1] = EMB_DIM;
 
 	// key weights
-	shape_k_weights[0] = 1;
+	shape_k_weights[0] = EMB_DIM;
 	shape_k_weights[1] = EMB_DIM;
 
 	// value weights
-	shape_v_weights[0] = 1;
+	shape_v_weights[0] = EMB_DIM;
 	shape_v_weights[1] = EMB_DIM;
 
 
@@ -206,16 +207,21 @@ int main() {
 	 * say "sky" has embedding -> e and has q_proj -> q and has key_proj -> k and has v_proj -> value
 	 * so that becomes e * wq = Q, e * wk = K and e * wv = V
 	 * then onwords we calculate the attention for each single token
+	 *
 	 */
 
 	// Attention(Q, K, V) = softmax(q * transpose(k) / sqrt(dk)) * v
 	Tensor *tokens = tensor_create(ndim, shape_tokens);
-	Tensor *q = tensor_create_weights(ndim, shape_q_weights);	
-	Tensor *k = tensor_create_weights(ndim, shape_k_weights);
-	Tensor *v = tensor_create_weights(ndim, shape_v_weights);
+	Tensor *qw = tensor_create_weights(ndim, shape_q_weights);	
+	Tensor *kw = tensor_create_weights(ndim, shape_k_weights);
+	Tensor *vw = tensor_create_weights(ndim, shape_v_weights);
 
-	Tensor *Q = matmul(tokens, q);
-	tensor_get(Q);
-	
+	Tensor *qwt = transpose(qw);
+	tensor_shape(tokens);
+	tensor_shape(qwt);
+	Tensor *q_pro = matmul(tokens, qwt);
+	tensor_shape(q_pro);
+
+
 	return 0;
 }

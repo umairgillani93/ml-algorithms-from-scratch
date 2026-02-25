@@ -1,5 +1,5 @@
-#include <stdio.h>
-#include <stdlib.h>
+#ifndef TENSOR_H
+#define TENSOR_H
 
 typedef struct {
 	int *shape;
@@ -8,3 +8,7 @@ typedef struct {
 	float *data;
 } Tensor;
 
+
+// prototypes definition
+
+#endif
