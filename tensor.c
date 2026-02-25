@@ -168,60 +168,60 @@ void tensor_shape(Tensor *t) {
 	printf("(%d, %d)\n", t->shape[0], t->shape[1]);
 }
 
-int main() {
-	int seed = 32;
-	srand(seed);
-
-	int ndim = 2;
-	//Tensor *tokens = malloc(sizeof(Tensor));
-	//Tensor *q_weights = malloc(sizeof(Tensor));
-	//Tensor *k_weights = malloc(sizeof(Tensor));
-	//Tensor *v_weights = malloc(sizeof(Tensor));
-
-	int *shape_tokens = malloc(ndim * sizeof(int));
-	int *shape_q_weights = malloc(ndim * sizeof(float));
-	int *shape_k_weights = malloc(ndim * sizeof(float));
-	int *shape_v_weights = malloc(ndim * sizeof(float));
-
-	// define shape_tokens
-
-	shape_tokens[0] = SEQ_LEN;
-	shape_tokens[1] = EMB_DIM; // this is for token embeddings
-	
-	// consider this for a single token query weights
-	shape_q_weights[0] = EMB_DIM;
-	shape_q_weights[1] = EMB_DIM;
-
-	// key weights
-	shape_k_weights[0] = EMB_DIM;
-	shape_k_weights[1] = EMB_DIM;
-
-	// value weights
-	shape_v_weights[0] = EMB_DIM;
-	shape_v_weights[1] = EMB_DIM;
-
-
-	/* let's say we have a single token word "sky"
-	 * this token will have it's own embedding
-	 * and this embedding will have it's own projections all of them query, key and value
-	 * say "sky" has embedding -> e and has q_proj -> q and has key_proj -> k and has v_proj -> value
-	 * so that becomes e * wq = Q, e * wk = K and e * wv = V
-	 * then onwords we calculate the attention for each single token
-	 *
-	 */
-
-	// Attention(Q, K, V) = softmax(q * transpose(k) / sqrt(dk)) * v
-	Tensor *tokens = tensor_create(ndim, shape_tokens);
-	Tensor *qw = tensor_create_weights(ndim, shape_q_weights);	
-	Tensor *kw = tensor_create_weights(ndim, shape_k_weights);
-	Tensor *vw = tensor_create_weights(ndim, shape_v_weights);
-
-	Tensor *qwt = transpose(qw);
-	tensor_shape(tokens);
-	tensor_shape(qwt);
-	Tensor *q_pro = matmul(tokens, qwt);
-	tensor_shape(q_pro);
-
-
-	return 0;
-}
+//int main() {
+//	int seed = 32;
+//	srand(seed);
+//
+//	int ndim = 2;
+//	//Tensor *tokens = malloc(sizeof(Tensor));
+//	//Tensor *q_weights = malloc(sizeof(Tensor));
+//	//Tensor *k_weights = malloc(sizeof(Tensor));
+//	//Tensor *v_weights = malloc(sizeof(Tensor));
+//
+//	int *shape_tokens = malloc(ndim * sizeof(int));
+//	int *shape_q_weights = malloc(ndim * sizeof(float));
+//	int *shape_k_weights = malloc(ndim * sizeof(float));
+//	int *shape_v_weights = malloc(ndim * sizeof(float));
+//
+//	// define shape_tokens
+//
+//	shape_tokens[0] = SEQ_LEN;
+//	shape_tokens[1] = EMB_DIM; // this is for token embeddings
+//	
+//	// consider this for a single token query weights
+//	shape_q_weights[0] = EMB_DIM;
+//	shape_q_weights[1] = EMB_DIM;
+//
+//	// key weights
+//	shape_k_weights[0] = EMB_DIM;
+//	shape_k_weights[1] = EMB_DIM;
+//
+//	// value weights
+//	shape_v_weights[0] = EMB_DIM;
+//	shape_v_weights[1] = EMB_DIM;
+//
+//
+//	/* let's say we have a single token word "sky"
+//	 * this token will have it's own embedding
+//	 * and this embedding will have it's own projections all of them query, key and value
+//	 * say "sky" has embedding -> e and has q_proj -> q and has key_proj -> k and has v_proj -> value
+//	 * so that becomes e * wq = Q, e * wk = K and e * wv = V
+//	 * then onwords we calculate the attention for each single token
+//	 *
+//	 */
+//
+//	// Attention(Q, K, V) = softmax(q * transpose(k) / sqrt(dk)) * v
+//	Tensor *tokens = tensor_create(ndim, shape_tokens);
+//	Tensor *qw = tensor_create_weights(ndim, shape_q_weights);	
+//	Tensor *kw = tensor_create_weights(ndim, shape_k_weights);
+//	Tensor *vw = tensor_create_weights(ndim, shape_v_weights);
+//
+//	Tensor *qwt = transpose(qw);
+//	tensor_shape(tokens);
+//	tensor_shape(qwt);
+//	Tensor *q_pro = matmul(tokens, qwt);
+//	tensor_shape(q_pro);
+//
+//
+//	return 0;
+//}
