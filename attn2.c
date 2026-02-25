@@ -51,7 +51,8 @@ int main() {
 	tensor_shape(tokens);
 	tensor_shape(qwt);
 	Tensor *q_proj = matmul(tokens, qwt);
-	tensor_shape(q_proj);
+	Tensor *s = tensor_softmax(q_proj);
+	tensor_get(s);
 
 	return 0;
 }

@@ -13,6 +13,7 @@ typedef struct {
 Tensor *tensor_create(int ndim, int *shape);
 Tensor *tensor_create_weights(int ndim, int *shape);
 Tensor *matmul(Tensor *a, Tensor *b);
+Tensor *tensor_softmax(Tensor *a);
 Tensor *transpose(Tensor *t);
 void tensor_free(Tensor *t);
 void tensor_get(Tensor *t);

@@ -116,6 +116,38 @@ Tensor *matmul(Tensor *a, Tensor *b) {
 	return r;
 }
 
+Tensor *tensor_softmax(Tensor *t) {
+	Tensor *r = malloc(sizeof(Tensor));
+	if (!r) {return NULL;}
+	r->shape = t->shape;
+	r->stride = t->stride;
+	r->ndim = t->ndim;
+	r->data = malloc(r->shape[0] * r->shape[1] * sizeof(float));
+
+	int rows = t->shape[0];
+	int cols = t->shape[1];
+
+	for (int i = 0; i < rows; i++) {
+		float max = -INFINITY;
+		for (int j = 0; j < cols; j++) {
+			if (t->data[i * cols + j] > max) {
+				max = t->data[i * cols + j];
+			}
+		}
+
+		float sum = 0.0f;
+		for (int j = 0; j < cols; j++) {
+			sum += expf(t->data[i * cols + j] - max);
+		}
+
+		// now find division
+		for (int k = 0; k < cols; k++) {
+			r->data[i * cols + k] = expf(t->data[i * cols + k] - max) / sum;
+		}
+	}
+	return r;
+}
+
 void tensor_free(Tensor *t) {
 	if (!t) return;
 	free(t->data);
