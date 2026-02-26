@@ -11,6 +11,30 @@
 #define BATCH_SIZE 2
 #define EPS 1e-5
 
+Tensor *multihead_attention(Tensor *tokens, int *shape_weights, int num_heads) {
+	Tensor mha[num_heads];
+	for (int i = 0; i < num_heads; i++) {
+
+		shape_weights[0] = EMB_DIM;
+		shape_weights[1] = EMB_DIM;
+		Tensor *qw = tensor_create_weights(ndim, shape_weights);	
+		Tensor *kw = tensor_create_weights(ndim, shape_weights);
+		Tensor *vw = tensor_create_weights(ndim, shape_weights);
+
+		Tensor *Q = tensor_matmul(tokens, qw);
+		Tensor *K = tensor_matmul(tokens, kw);
+		Tensor *V = tensor_matmul(tokens, vw);
+
+		int dk = EMB_DIM / num_heads;
+		
+		Tensor *att_score = scaled_dot_product_attention(Q, K, V, dk);
+		mha[i] = att_score;
+	}
+	tensor_shape(mha[0]);
+
+	return NULL;
+}	
+
 Tensor *scaled_dot_product_attention(Tensor *Q, Tensor *K, Tensor *V, int dk) {
 	Tensor *kt = tensor_transpose(K);
 	Tensor *qkt = tensor_matmul(Q, kt);
@@ -41,8 +65,14 @@ int main() {
 	shape_tokens[1] = EMB_DIM; // this is for token embeddings
 	
 	// weights shape
-	shape_weights[0] = EMB_DIM;
-	shape_weights[1] = EMB_DIM;
+	//shape_weights[0] = EMB_DIM;
+	//shape_weights[1] = EMB_DIM;
+	
+
+	int num_heads = 8;
+	Tensor *mha = multihead_attention(tokens, num_heads);
+	
+	
 
 
 	/* let's say we have a single token word "sky"
@@ -55,19 +85,19 @@ int main() {
 	 */
 
 	// Attention(Q, K, V) = softmax(q * transpose(k) / sqrt(dk)) * v
-	Tensor *tokens = tensor_create(ndim, shape_tokens);
-	Tensor *qw = tensor_create_weights(ndim, shape_weights);	
-	Tensor *kw = tensor_create_weights(ndim, shape_weights);
-	Tensor *vw = tensor_create_weights(ndim, shape_weights);
+	//Tensor *tokens = tensor_create(ndim, shape_tokens);
+	//Tensor *qw = tensor_create_weights(ndim, shape_weights);	
+	//Tensor *kw = tensor_create_weights(ndim, shape_weights);
+	//Tensor *vw = tensor_create_weights(ndim, shape_weights);
 
-	Tensor *Q = tensor_matmul(tokens, qw);
-	Tensor *K = tensor_matmul(tokens, kw);
-	Tensor *V = tensor_matmul(tokens, vw);
+	//Tensor *Q = tensor_matmul(tokens, qw);
+	//Tensor *K = tensor_matmul(tokens, kw);
+	//Tensor *V = tensor_matmul(tokens, vw);
 
-	int dk = EMB_DIM / 8;
-	Tensor *att_score = scaled_dot_product_attention(Q, K, V, dk);
+	//int dk = EMB_DIM / 8;
+	//Tensor *att_score = scaled_dot_product_attention(Q, K, V, dk);
 
-	tensor_shape(att_score);
+	//tensor_shape(att_score);
 
 }
 
