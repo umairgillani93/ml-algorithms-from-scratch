@@ -1,15 +1,28 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <math.h>
 #include "tensor.h"
 #include "attention2.h"
 
 #define RAND_FLOAT  (float) rand() / (float) RAND_MAX
-#define EMB_DIM 32 
+#define EMB_DIM 512 
 #define SEQ_LEN 10
 #define BATCH_SIZE 2
 #define EPS 1e-5
 
+Tensor *scaled_dot_product_attention(Tensor *Q, Tensor *K, Tensor *V, int dk) {
+	Tensor *kt = tensor_transpose(K);
+	Tensor *qkt = tensor_matmul(Q, kt);
+	for (int i = 0; i < qkt->shape[0]; i++) {
+		for (int j = 0; j < qkt->shape[1]; j++) {
+			qkt->data[i * qkt->shape[1] + j] = qkt->data[i * qkt->shape[1] +j] / sqrtf(dk);;
+		}
+	}
+	Tensor *qkt_soft = tensor_softmax(qkt); // RAND_FLOAT is random we'll calculate this later
+	Tensor *ret = tensor_matmul(qkt_soft, V);
+	return ret;
+}
 
 int main() {
 	int seed = 32;
@@ -21,7 +34,7 @@ int main() {
 	//Tensor *v_weights = malloc(sizeof(Tensor));
 
 	int *shape_tokens = malloc(ndim * sizeof(int));
-	int *shape_weights = malloc(ndim * sizeof(float));
+	int *shape_weights = malloc(ndim * sizeof(int));
 
 	// define shape_tokens
 	shape_tokens[0] = SEQ_LEN;
@@ -47,13 +60,14 @@ int main() {
 	Tensor *kw = tensor_create_weights(ndim, shape_weights);
 	Tensor *vw = tensor_create_weights(ndim, shape_weights);
 
-	Tensor *qwt = transpose(qw);
-	tensor_shape(tokens);
-	tensor_shape(qwt);
-	Tensor *q_proj = matmul(tokens, qwt);
-	Tensor *s = tensor_softmax(q_proj);
-	tensor_get(s);
+	Tensor *Q = tensor_matmul(tokens, qw);
+	Tensor *K = tensor_matmul(tokens, kw);
+	Tensor *V = tensor_matmul(tokens, vw);
 
-	return 0;
+	int dk = EMB_DIM / 8;
+	Tensor *att_score = scaled_dot_product_attention(Q, K, V, dk);
+
+	tensor_shape(att_score);
+
 }
 

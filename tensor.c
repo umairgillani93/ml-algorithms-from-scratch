@@ -88,7 +88,7 @@ Tensor *tensor_create_weights(int ndim, int *shape) {
 	return t;
 }
 
-Tensor *matmul(Tensor *a, Tensor *b) {
+Tensor *tensor_matmul(Tensor *a, Tensor *b) {
 	int rows_a = a->shape[0];
 	int cols_a = a->shape[1];
 
@@ -102,7 +102,7 @@ Tensor *matmul(Tensor *a, Tensor *b) {
 	shape_r[1] = b->shape[1];
 
 	Tensor *r = tensor_create(ndim_r, shape_r);
-	printf("Created resultant tensor\n");
+	//printf("Created resultant tensor\n");
 
 	for (int i = 0; i < rows_a; i++) {
 		for (int j = 0; j < cols_b; j++) {
@@ -169,7 +169,7 @@ void tensor_get(Tensor *t) {
 	}		
 }
 
-Tensor *transpose(Tensor *a) {
+Tensor *tensor_transpose(Tensor *a) {
 	int ndim = 2;
 	int *shape = malloc(ndim * sizeof(int));
 	shape[0] = a->shape[1];
