@@ -12,11 +12,10 @@
 #define EPS 1e-5
 
 Tensor *multihead_attention(Tensor *tokens, int *shape_weights, int num_heads) {
-	Tensor mha[num_heads];
+	int ndim = 2;
+	Tensor **mha = malloc(num_heads * sizeof(Tensor *));
 	for (int i = 0; i < num_heads; i++) {
 
-		shape_weights[0] = EMB_DIM;
-		shape_weights[1] = EMB_DIM;
 		Tensor *qw = tensor_create_weights(ndim, shape_weights);	
 		Tensor *kw = tensor_create_weights(ndim, shape_weights);
 		Tensor *vw = tensor_create_weights(ndim, shape_weights);
@@ -30,8 +29,10 @@ Tensor *multihead_attention(Tensor *tokens, int *shape_weights, int num_heads) {
 		Tensor *att_score = scaled_dot_product_attention(Q, K, V, dk);
 		mha[i] = att_score;
 	}
-	tensor_shape(mha[0]);
 
+	Tensor *r = malloc(sizeof(Tensor));
+
+	
 	return NULL;
 }	
 
@@ -52,10 +53,6 @@ int main() {
 	int seed = 32;
 	srand(seed);
 	int ndim = 2;
-	//Tensor *tokens = malloc(sizeof(Tensor));
-	//Tensor *q_weights = malloc(sizeof(Tensor));
-	//Tensor *k_weights = malloc(sizeof(Tensor));
-	//Tensor *v_weights = malloc(sizeof(Tensor));
 
 	int *shape_tokens = malloc(ndim * sizeof(int));
 	int *shape_weights = malloc(ndim * sizeof(int));
@@ -69,10 +66,9 @@ int main() {
 	//shape_weights[1] = EMB_DIM;
 	
 
+	Tensor *tokens = tensor_create(ndim, shape_tokens);
 	int num_heads = 8;
-	Tensor *mha = multihead_attention(tokens, num_heads);
-	
-	
+	Tensor *mha = multihead_attention(tokens, shape_weights, num_heads);
 
 
 	/* let's say we have a single token word "sky"
