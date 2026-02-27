@@ -6,14 +6,16 @@
 #include "attention2.h"
 
 #define RAND_FLOAT  (float) rand() / (float) RAND_MAX
-#define EMB_DIM 512 
+#define EMB_DIM 32
 #define SEQ_LEN 10
 #define BATCH_SIZE 2
 #define EPS 1e-5
 
 Tensor *multihead_attention(Tensor *tokens, int *shape_weights, int num_heads) {
 	int ndim = 2;
+	int dk = EMB_DIM / num_heads;
 	Tensor **mha = malloc(num_heads * sizeof(Tensor *));
+
 	for (int i = 0; i < num_heads; i++) {
 
 		Tensor *qw = tensor_create_weights(ndim, shape_weights);	
@@ -24,16 +26,36 @@ Tensor *multihead_attention(Tensor *tokens, int *shape_weights, int num_heads) {
 		Tensor *K = tensor_matmul(tokens, kw);
 		Tensor *V = tensor_matmul(tokens, vw);
 
-		int dk = EMB_DIM / num_heads;
 		
 		Tensor *att_score = scaled_dot_product_attention(Q, K, V, dk);
 		mha[i] = att_score;
 	}
 
-	Tensor *r = malloc(sizeof(Tensor));
+	 
+	int *shape_r = malloc(ndim * sizeof(int));
+	shape_r[0] = SEQ_LEN;
+	shape_r[1] = EMB_DIM;
 
-	
-	return NULL;
+	Tensor *res = tensor_create(ndim, shape_r);
+	int offset = 0;
+
+	for (int i = 0; i < num_heads; i++) {
+		Tensor *head = mha[i]; // This is our single head
+
+		int head_rows = head->shape[0];
+		int head_cols = head->shape[1];
+
+		for (int r = 0; r < head_rows; r++) {
+			for (int c = 0; c < head_cols; c++) {
+				int src_index = r * head_cols + c;
+				int dest_index = r * res->shape[1] + (offset + c);
+				res->data[dest_index] = head->data[src_index];
+			}
+		}
+		offset += head_cols;
+	}
+
+	return res;
 }	
 
 Tensor *scaled_dot_product_attention(Tensor *Q, Tensor *K, Tensor *V, int dk) {
@@ -69,6 +91,8 @@ int main() {
 	Tensor *tokens = tensor_create(ndim, shape_tokens);
 	int num_heads = 8;
 	Tensor *mha = multihead_attention(tokens, shape_weights, num_heads);
+	tensor_get(mha);
+	tensor_shape(mha);
 
 
 	/* let's say we have a single token word "sky"
