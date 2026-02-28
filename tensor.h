@@ -17,7 +17,7 @@ Tensor *tensor_softmax(Tensor *a);
 Tensor *tensor_transpose(Tensor *t);
 void tensor_free(Tensor *t);
 void tensor_get(Tensor *t);
-void tensor_size(Tensor *t);
+int tensor_size(Tensor *t);
 void tensor_shape(Tensor *t);
 
 #endif

@@ -61,13 +61,28 @@ void tensor_get(Tensor *t) {
 	}		
 }
 
+int tensor_size(Tensor *t) {
+	int size = 1;
+	for (int i = 0; i < t->ndim; i++) {
+		size *= t->shape[i];
+	}
+	//printf("Tensor size: %d\n", size);
+	return size;
+}	
+
 int main() {
-	int shape[2] = {2, 3};
+	int shape[2] = {6, 4};
 	int ndim = 2;
 	Tensor *t = tensor_create(ndim, shape);
-	Tensor *q = tensor_create(ndim, shape);
 
-	Tensor **arr = malloc(2 * sizeof(Tensor));
-
+	int offset = 0;
+	int size = tensor_size(t);
+	int rows= t->shape[0];
+	int cols = t->shape[1];
+	
+	for (int r = 0; r < rows; r++) {
+		float *s = t->data + r * t->shape[1];
+		printf("src: %p\n", (void*)s);
+	}
 	return 0;
 }

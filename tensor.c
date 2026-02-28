@@ -187,7 +187,7 @@ Tensor *tensor_transpose(Tensor *a) {
 	return t;
 }
 
-void tensor_size(Tensor *t) {
+int tensor_size(Tensor *t) {
 	int size = 1;
 	for (int i = 0; i < t->ndim; i++) {
 		size *= t->shape[i];
