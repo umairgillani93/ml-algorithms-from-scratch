@@ -119,5 +119,3 @@ Tensor *scaled_dot_product_attention(Tensor *Q, Tensor *K, Tensor *V, int dk) {
 //
 //	//tensor_shape(att_score);
 //}
-
-
