@@ -1,1 +1,1 @@
-gcc ln.c attn2.c tensor.c -lm && ./a.out
+gcc ffn.c ln.c attn2.c tensor.c -lm && ./a.out

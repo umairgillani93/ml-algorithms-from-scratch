@@ -54,37 +54,37 @@ Tensor *layer_norm(Tensor *t) {
 	return t;
 }
 
-int main() {
-	int ndim = 2;
-	int *shape_tokens = malloc(ndim * sizeof(int));
-	if (!shape_tokens) {
-		fprintf(stderr, "Something wrong with memory allocation\n");
-		return 0;
-	}
-	shape_tokens[0] = SEQ_LEN;
-	shape_tokens[1] = EMB_DIM;
-
-	Tensor *tokens = tensor_create(ndim, shape_tokens);
-
-	if (!tokens) {
-		fprintf(stderr, "Something wrong with memory allocation\n");
-		return 0;
-	}
-	int *shape_weights = malloc(ndim * sizeof(int));
-	if (!shape_weights) {
-		fprintf(stderr, "Something wrong with memory allocation\n");
-		return 0;
-	}
-
-	shape_weights[0] = EMB_DIM;
-	shape_weights[1] = EMB_DIM;
-
-	int num_heads = 8;
-
-	printf("\n");
-	Tensor *mha = multihead_attention(tokens, shape_weights, num_heads);
-	Tensor *t = layer_norm(tokens);
-	tensor_shape(t);
-	return 0;
-}
-
+//int main() {
+//	int ndim = 2;
+//	int *shape_tokens = malloc(ndim * sizeof(int));
+//	if (!shape_tokens) {
+//		fprintf(stderr, "Something wrong with memory allocation\n");
+//		return 0;
+//	}
+//	shape_tokens[0] = SEQ_LEN;
+//	shape_tokens[1] = EMB_DIM;
+//
+//	Tensor *tokens = tensor_create(ndim, shape_tokens);
+//
+//	if (!tokens) {
+//		fprintf(stderr, "Something wrong with memory allocation\n");
+//		return 0;
+//	}
+//	int *shape_weights = malloc(ndim * sizeof(int));
+//	if (!shape_weights) {
+//		fprintf(stderr, "Something wrong with memory allocation\n");
+//		return 0;
+//	}
+//
+//	shape_weights[0] = EMB_DIM;
+//	shape_weights[1] = EMB_DIM;
+//
+//	int num_heads = 8;
+//
+//	printf("\n");
+//	Tensor *mha = multihead_attention(tokens, shape_weights, num_heads);
+//	Tensor *t = layer_norm(tokens);
+//	tensor_shape(t);
+//	return 0;
+//}
+//
