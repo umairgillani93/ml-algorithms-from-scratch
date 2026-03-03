@@ -9,8 +9,9 @@ typedef struct {
 	Tensor *w2;
 } FFN;
 
-Tensor *forward(FFN *f, Tensor *x);
+Tensor *ffn_forward(Tensor *x, FFN *y);
 FFN *ffn_create(int input_dim, int hidden_dim);
+Tensor *relu(Tensor *x);
 
 
 #endif

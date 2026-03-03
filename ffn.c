@@ -23,6 +23,7 @@ FFN *ffn_create(int input_dim, int hidden_dim) {
 
 Tensor *ffn_forward(Tensor *x, FFN *f) {
 	Tensor *h1 = tensor_matmul(x, f->w1);
+	printf("matmul result: \n");
 	Tensor *a1 = relu(h1);
 	Tensor *out = tensor_matmul(a1, f->w2);
 	return out;
@@ -68,8 +69,9 @@ int main() {
 	}
 
 	FFN *f = ffn_create(32, EMB_DIM);
-	Tensor *res = ffn_forward(ffn, tokens);
+	Tensor *res = ffn_forward(tokens, f);
 	tensor_get(res);
+	tensor_shape(res);
 
 	return 0;
 }
