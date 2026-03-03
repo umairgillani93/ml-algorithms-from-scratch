@@ -33,7 +33,7 @@ Tensor *ffn_forward(Tensor *x, FFN *f) {
 Tensor *relu(Tensor *x) {
 	int size = x->shape[0] * x->shape[1];
 	for (int i = 0; i < size; i++) {
-		float val = MAX(0, x->data[i]);
+		float val = MAX(0, (float) x->data[i]);
 		x->data[i] = val;
 	}
 	return x;
@@ -54,22 +54,28 @@ Tensor *forward(Tensor *x) {
 int main() {
 	int ndim = 2;
 	int *shape_tokens = malloc(ndim * sizeof(int));
-	if (!shape_tokens) {
-		fprintf(stderr, "Something wrong with memory allocation\n");
-		return 0;
-	}
+	int *shape_weights= malloc(ndim * sizeof(int));
+
 	shape_tokens[0] = SEQ_LEN;
 	shape_tokens[1] = EMB_DIM;
 
+	shape_weights[0] = EMB_DIM;
+	shape_weights[1] = EMB_DIM;
+
+	int num_heads = 8;
+
+	// define token tensors
 	Tensor *tokens = tensor_create(ndim, shape_tokens);
+	tensor_shape(tokens);
 
-	if (!tokens) {
-		fprintf(stderr, "Something wrong with memory allocation\n");
-		return 0;
-	}
 
-	FFN *f = ffn_create(32, EMB_DIM);
-	Tensor *res = ffn_forward(tokens, f);
+	// define FFN weights
+	FFN *f = malloc(sizeof(FFN));
+	f = ffn_create(32, 128);
+	
+	Tensor *mha = multihead_attention(tokens, shape_weights, num_heads);
+	Tensor *ln = layer_norm(tokens);
+	Tensor *res = ffn_forward(ln, f);
 	tensor_get(res);
 	tensor_shape(res);
 

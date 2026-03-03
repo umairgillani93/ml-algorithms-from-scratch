@@ -93,29 +93,7 @@ Tensor *scaled_dot_product_attention(Tensor *Q, Tensor *K, Tensor *V, int dk) {
 //	Tensor *mha = multihead_attention(tokens, shape_weights, num_heads);
 //	tensor_get(mha);
 //	tensor_shape(mha);
+//	return 0;
 //
 //
-//	/* let's say we have a single token word "sky"
-//	 * this token will have it's own embedding
-//	 * and this embedding will have it's own projections all of them query, key and value
-//	 * say "sky" has embedding -> e and has q_proj -> q and has key_proj -> k and has v_proj -> value
-//	 * so that becomes e * wq = Q, e * wk = K and e * wv = V
-//	 * then onwords we calculate the attention for each single token
-//	 *
-//	 */
-//
-//	// Attention(Q, K, V) = softmax(q * transpose(k) / sqrt(dk)) * v
-//	//Tensor *tokens = tensor_create(ndim, shape_tokens);
-//	//Tensor *qw = tensor_create_weights(ndim, shape_weights);	
-//	//Tensor *kw = tensor_create_weights(ndim, shape_weights);
-//	//Tensor *vw = tensor_create_weights(ndim, shape_weights);
-//
-//	//Tensor *Q = tensor_matmul(tokens, qw);
-//	//Tensor *K = tensor_matmul(tokens, kw);
-//	//Tensor *V = tensor_matmul(tokens, vw);
-//
-//	//int dk = EMB_DIM / 8;
-//	//Tensor *att_score = scaled_dot_product_attention(Q, K, V, dk);
-//
-//	//tensor_shape(att_score);
 //}
