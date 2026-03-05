@@ -28,54 +28,10 @@ The project is designed for developers who want to understand **the mechanics be
 
 ---
 
-## Transformer Encoder Architecture
-Input Tensor (Sequence x Embedding Dim)
-│
-▼
-┌──────────────────┐
-│ LayerNorm │
-└────────┬─────────┘
-│
-▼
-┌──────────────────┐
-│ Multi-Head │
-│ Self Attention │
-│ │
-│ Q = XWq │
-│ K = XWk │
-│ V = XWv │
-│ │
-│ Attention(Q,K,V)│
-└────────┬─────────┘
-│
-▼
-Residual Add
-(X + Attn)
-│
-▼
-┌──────────────────┐
-│ LayerNorm │
-└────────┬─────────┘
-│
-▼
-┌──────────────────┐
-│ Feed Forward │
-│ Network (FFN) │
-│ │
-│ Linear (W1) │
-│ ReLU / GELU │
-│ Linear (W2) │
-└────────┬─────────┘
-│
-▼
-Residual Add
-(X + FFN)
-│
-▼
-Output
+## Transformers Architecture
+## Transformer Architecture
 
-
-Each module is implemented in a **modular and reusable manner**.
+![Transformer Architecture](https://machinelearningmastery.com/wp-content/uploads/2021/08/attention_research_1.png)
 
 ---
 
