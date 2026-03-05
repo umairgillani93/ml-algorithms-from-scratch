@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <assert.h>
 #include "tensor.h"
 #include "attention2.h"
 #include "layer_norm.h"
@@ -20,21 +19,17 @@ FFN *ffn_create(int input_dim, int hidden_dim) {
 		fprintf(stderr, "Something's wrong with memory allocation!\n");
 	}
 	f->w1 = tensor_create_weights(ndim, shape1);
+	printf("w1 shape: \n");
+	tensor_get(f->w1);
 	f->w2 = tensor_create_weights(ndim, shape2);
-	//printf("w1 shape: \n");
-	//tensor_get(f->w1);
-	//tensor_get(f->w2);
+	tensor_get(f->w2);
 
 	return f;
 }
 
 Tensor *ffn_forward(Tensor *x, FFN *f) {
-	assert(x->shape[1] == f->w1->shape[0]);
 	Tensor *h1 = tensor_matmul(x, f->w1);
-	printf("h1 shape: \n");
-	tensor_shape(h1);
 	Tensor *a1 = relu(h1);
-	assert(a1->shape[1] == f->w2->shape[0]);
 	Tensor *out = tensor_matmul(a1, f->w2);
 	return out;
 }	
@@ -76,20 +71,17 @@ int main() {
 
 	// define token tensors
 	Tensor *tokens = tensor_create(ndim, shape_tokens);
+	tensor_shape(tokens);
 
 
 	// define FFN weights
-	FFN *f = ffn_create(32, 128);
-	//tensor_shape(f->w1);
-
+	FFN *f = malloc(sizeof(FFN));
+	f = ffn_create(32, 128);
+	
 	Tensor *mha = multihead_attention(tokens, shape_weights, num_heads);
 	Tensor *ln = layer_norm(tokens);
-	printf("shape layer norm: \n");
-	tensor_shape(ln);
-	//Tensor *res = ffn_forward(ln, f);
-	//tensor_get(res);
-
-
+	Tensor *res = ffn_forward(ln, f);
+	tensor_get(res);
 
 	return 0;
 }
